@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <title>GameBench · HTML 游戏对比</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">g<span>↗</span></span><div><strong>GameBench<span class="brand-divider">/</span><span class="brand-sub">游戏对比</span></strong><span class="eyebrow">HTML GAME COMPARISON</span></div></div>
+    <div class="header-actions"><span id="load-status" class="load-status" role="status">正在连接…</span></div>
+  </header>
+
+  <main>
+    <section class="intro"><div><div class="eyebrow">WEBCATALYST <span class="tiny-slash">/</span> INTERACTIVE DEMO</div><h1>同一个创意，不同模型的呈现<span>.</span></h1><p>在相同 prompt 下体验各模型生成的 HTML 游戏，探索交互与视觉效果。</p></div></section>
+
+    <section class="prompt-panel" aria-labelledby="prompt-heading">
+      <div class="prompt-toolbar"><div class="section-label"><span class="step">01</span><h2 id="prompt-heading">选择 Prompt</h2><span id="prompt-position" class="pill">—</span></div><div class="navigation"><button id="prev-prompt" class="button quiet" aria-label="上一个 prompt">← 上一个</button><button id="next-prompt" class="button dark" aria-label="下一个 prompt">下一个 →</button></div></div>
+      <div class="prompt-controls"><label class="search-control"><span aria-hidden="true">⌕</span><input id="prompt-search" type="search" placeholder="搜索 prompt 内容或 ID…" aria-label="搜索 prompt"></label><select id="prompt-select" aria-label="选择 prompt"><option>正在加载…</option></select></div>
+      <div class="prompt-content"><div class="prompt-meta"><span id="prompt-id">PROMPT</span><span id="current-models">—</span></div><p id="prompt-text" dir="auto">正在读取模型数据…</p><button id="toggle-prompt" class="text-button" hidden>展开完整 Prompt ↓</button></div>
+    </section>
+
+    <section class="comparison-section" aria-labelledby="comparison-heading">
+      <div class="comparison-toolbar"><div class="section-label"><span class="step">02</span><h2 id="comparison-heading">体验与对比</h2><span id="model-count" class="muted"></span></div><label class="viewport-control">画布尺寸 <select id="viewport-select" aria-label="预览画布尺寸"><option value="1024x768">桌面 · 1024 × 768</option><option value="1280x800">宽屏 · 1280 × 800</option><option value="390x844">手机 · 390 × 844</option></select></label></div>
+      <div class="viewing-guide"><span><span class="reference-dot"></span><strong>参照模型固定在左侧</strong></span><span>点击游戏即可交互 · 放大可并排对照</span></div>
+      <div id="empty-state" class="empty-state" hidden><strong>没有匹配的 Prompt</strong><p>试试其它关键词。</p></div>
+      <div id="comparison-board" class="comparison-board"><div id="reference-column" class="reference-column"></div><div id="opponent-grid" class="opponent-grid"></div></div>
+    </section>
+
+    <footer><span>WebCatalyst <span class="tiny-slash">/</span> Interactive HTML gallery</span><span>100 个 Prompt · 6 个模型</span></footer>
+    <div id="fatal-error" class="fatal-error" role="alert" hidden></div>
+  </main>
+
+  <dialog id="preview-dialog" aria-labelledby="dialog-title"><div class="dialog-header"><div><span class="eyebrow">FOCUS VIEW</span><h2 id="dialog-title">放大对照</h2></div><div class="dialog-tools"><label>缩放 <select id="zoom-select" aria-label="放大视图缩放"><option value="fit">适应窗口</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1">100%</option><option value="1.25">125%</option><option value="1.5">150%</option></select></label><button id="dialog-fullscreen" class="button">⛶ 全屏</button><button id="close-dialog" class="button" aria-label="关闭放大视图">关闭 ×</button></div></div><div id="dialog-games" class="dialog-games"></div><div class="dialog-footer"><span id="dialog-description"></span></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

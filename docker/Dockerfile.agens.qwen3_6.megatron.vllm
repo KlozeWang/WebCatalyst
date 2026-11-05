@@ -1,0 +1,111 @@
+# syntax=docker/dockerfile:1.7
+
+# Build from the repository root:
+#   docker build -f docker/Dockerfile.agens.qwen3_6.megatron.vllm \
+#     -t webcatalyst:qwen3.6-megatron-vllm .
+
+# Official verl development image used by the current vLLM CI matrix.
+# Override with a digest-pinned image in reproducible or production builds.
+ARG VERL_BASE_IMAGE=verlai/verl:vllm024.dev2
+FROM ${VERL_BASE_IMAGE}
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG TARGETARCH
+ARG APT_MIRROR=""
+ARG UV_VERSION=0.11.32
+ARG NODE_VERSION=24.2.0
+ARG PLAYWRIGHT_VERSION=1.60.0
+ARG FLASH_LINEAR_ATTENTION_VERSION=0.5.1 #0.5.2
+ARG TRANSFORMERS_VERSION=5.5.3
+ARG PILLOW_VERSION=12.2.0
+
+LABEL org.opencontainers.image.title="verl Qwen3.6 Megatron-vLLM Agens environment" \
+      org.opencontainers.image.description="Official verl vLLM image with Qwen3.6 and Agens runtime dependencies"
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ENV AGENS_ROOT=/workspace/webcatalyst/agens-cli \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    VIRTUAL_ENV=/opt/webcatalyst-venv \
+    PATH=/opt/webcatalyst-venv/bin:${PATH}
+
+# Keep the default Ubuntu sources unless an explicit mirror is supplied.
+RUN if [[ -n "${APT_MIRROR}" ]]; then \
+        for sources_file in \
+            /etc/apt/sources.list \
+            /etc/apt/sources.list.d/ubuntu.sources; do \
+            if [[ -f "${sources_file}" ]]; then \
+                sed -i \
+                    -e "s@http://archive.ubuntu.com/ubuntu@${APT_MIRROR}@g" \
+                    -e "s@http://security.ubuntu.com/ubuntu@${APT_MIRROR}@g" \
+                    "${sources_file}"; \
+            fi; \
+        done; \
+    fi && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        xz-utils && \
+    rm -rf /var/lib/apt/lists/*
+
+# Agens requires Node.js >=24. The tarball checksum is verified against the
+# checksums published for the selected Node release.
+RUN case "${TARGETARCH:-amd64}" in \
+        amd64) node_arch="linux-x64" ;; \
+        arm64) node_arch="linux-arm64" ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac && \
+    node_dist="node-v${NODE_VERSION}-${node_arch}" && \
+    curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${node_dist}.tar.xz" && \
+    curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt" && \
+    grep " ${node_dist}.tar.xz$" SHASUMS256.txt | sha256sum -c - && \
+    tar -xJf "${node_dist}.tar.xz" -C /usr/local --strip-components=1 && \
+    rm -f "${node_dist}.tar.xz" SHASUMS256.txt && \
+    node --version && \
+    npm --version
+
+# Keep additions isolated while reusing the official image's CUDA, Torch,
+# vLLM, Megatron, MBridge and TransferQueue packages.
+RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | \
+        env UV_INSTALL_DIR=/usr/local/bin sh && \
+    uv venv \
+        --python /usr/bin/python3 \
+        --system-site-packages \
+        "${VIRTUAL_ENV}"
+
+# Qwen3.6-35B-A3B resolves through the Qwen3.5 MoE implementation. Match the
+# Transformers version used by current verl CI and add the linear-attention
+# kernels required by the official Qwen3.5 Megatron example. FLA 0.5.x splits
+# its implementation into the same-version fla-core package; install both
+# explicitly because --no-deps intentionally preserves the base image's
+# compatible Torch and Triton packages.
+RUN uv pip install \
+        --python "${VIRTUAL_ENV}/bin/python" \
+        --no-deps \
+        "fla-core==${FLASH_LINEAR_ATTENTION_VERSION}" \
+        "flash-linear-attention==${FLASH_LINEAR_ATTENTION_VERSION}" \
+        "Pillow==${PILLOW_VERSION}" \
+        "transformers==${TRANSFORMERS_VERSION}" && \
+    uv cache clean
+
+# Install one shared Chromium payload for Agens. The CLI source itself remains
+# workspace-mounted, so rebuilding the image is unnecessary while developing it.
+WORKDIR /opt/agens-playwright
+RUN npm init -y && \
+    npm install --save-exact "playwright@${PLAYWRIGHT_VERSION}" && \
+    npx playwright install --with-deps chromium && \
+    chmod -R a+rX "${PLAYWRIGHT_BROWSERS_PATH}" && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /root/.npm/_cacache
+
+# Prevent `npm ci` in the mounted Agens workspace from downloading a second
+# browser. The wrapper builds the CLI lazily when its dist output is absent.
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+COPY docker/agens-from-workspace /usr/local/bin/agens
+RUN chmod 0755 /usr/local/bin/agens && \
+    python3 -c "import mbridge, torch, transfer_queue, transformers, vllm; import megatron.core; from fla.modules import FusedRMSNormGated; from fla.ops.gated_delta_rule import chunk_gated_delta_rule, fused_recurrent_gated_delta_rule; from transformers import Qwen3_5MoeForConditionalGeneration; assert transformers.__version__ == '${TRANSFORMERS_VERSION}'; print('torch', torch.__version__, 'transformers', transformers.__version__, 'vllm', vllm.__version__, 'fla', FusedRMSNormGated.__name__)"
+
+WORKDIR /workspace/webcatalyst
+CMD ["/bin/bash"]

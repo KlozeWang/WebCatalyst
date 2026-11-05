@@ -1,0 +1,62 @@
+{
+  "name": "agens",
+  "version": "0.5.0",
+  "description": "Multi-model, multi-modal agent harness on top of the GitHub Copilot SDK. Built-in Playwright MCP, screenshot-and-critique loop, pluggable skills.",
+  "keywords": [
+    "agent",
+    "agent-harness",
+    "copilot",
+    "copilot-sdk",
+    "playwright",
+    "mcp",
+    "llm",
+    "cli",
+    "html-generation",
+    "critique-loop"
+  ],
+  "license": "ISC",
+  "author": "agens contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buaahsh/agens-cli.git"
+  },
+  "homepage": "https://github.com/buaahsh/agens-cli#readme",
+  "bugs": {
+    "url": "https://github.com/buaahsh/agens-cli/issues"
+  },
+  "type": "module",
+  "bin": {
+    "agens": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "install.sh",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "node -e \"require('fs').chmodSync('dist/cli.js', 0o755)\"",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "node --import tsx --test test/*.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "^1.0.0-beta.8",
+    "axe-core": "^4.10.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "playwright": "^1.49.0",
+    "pngjs": "^7.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

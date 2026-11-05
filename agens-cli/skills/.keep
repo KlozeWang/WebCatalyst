@@ -1,0 +1,7 @@
+# Drop skill folders here. Each skill is a directory containing a SKILL.md file.
+# Example:
+#   skills/
+#     web-research/
+#       SKILL.md
+#     gh-triager/
+#       SKILL.md

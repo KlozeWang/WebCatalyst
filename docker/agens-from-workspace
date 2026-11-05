@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+agens_root="${AGENS_ROOT:-/workspace/webcatalyst/agens-cli}"
+agens_cli="${agens_root}/dist/cli.js"
+
+if [[ ! -f "${agens_root}/package.json" ]]; then
+    echo "Agens CLI workspace not found at ${agens_root}." >&2
+    echo "Mount the verl workspace there or set AGENS_ROOT." >&2
+    exit 1
+fi
+
+if [[ ! -d "${agens_root}/node_modules" ]]; then
+    npm ci --prefix "${agens_root}"
+fi
+
+if [[ ! -f "${agens_cli}" ]]; then
+    npm run build --prefix "${agens_root}"
+fi
+
+exec node "${agens_cli}" "$@"

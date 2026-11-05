@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Packed tarballs (built by `npm pack`, attached to releases by Actions)
+*.tgz
+
+# Local config / runtime
+.agens/
+~/.agens/
+.copilot/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example
+.playwright-mcp/
+test_case/
+
+evaluation/results
+.agents_sim/
+.agens-sim/
+.agens-sim-*/
+/artifact-*/
