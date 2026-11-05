@@ -1,3 +1,17 @@
+# Copyright 2026 WebCatalyst Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Core viewer checks: python3 -B -m unittest -v test_server.py."""
 
 import io
@@ -6,7 +20,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from server import Dataset, REFERENCE, extract_html, handler_for
+from server import REFERENCE, Dataset, extract_html, handler_for
 
 
 class ViewerTests(unittest.TestCase):
@@ -18,8 +32,10 @@ class ViewerTests(unittest.TestCase):
         for model, prompts in [(REFERENCE, ["A", "B"]), ("opponent", ["B", "A"])]:
             folder = self.root / model
             folder.mkdir()
-            rows = [{"prompt": prompt, "id": index, "html": f"<html>{model}-{prompt}</html>"}
-                    for index, prompt in enumerate(prompts)]
+            rows = [
+                {"prompt": prompt, "id": index, "html": f"<html>{model}-{prompt}</html>"}
+                for index, prompt in enumerate(prompts)
+            ]
             (folder / "results.jsonl").write_text("\n".join(json.dumps(row) for row in rows))
             (folder / "results.legacy.jsonl").write_text("invalid legacy data")
         self.dataset = Dataset(self.root)

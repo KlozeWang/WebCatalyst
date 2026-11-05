@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+# Copyright 2026 WebCatalyst Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Dependency-free, local HTML comparison viewer. Run: python3 server.py."""
 
 import argparse
@@ -15,7 +29,6 @@ ROOT = Path(__file__).resolve().parent
 REFERENCE = "WebCatalyst"
 
 
-
 def extract_html(row):
     html = row.get("html")
     if isinstance(html, str) and html.strip():
@@ -25,9 +38,9 @@ def extract_html(row):
     start = re.search(r"<!doctype\s+html|<html\b", response, re.I)
     if not start:
         return ""
-    html = response[start.start():]
+    html = response[start.start() :]
     end = re.search(r"</html\s*>", html, re.I)
-    return html[:end.end()] if end else html.rstrip().removesuffix("```").rstrip()
+    return html[: end.end()] if end else html.rstrip().removesuffix("```").rstrip()
 
 
 class Dataset:
@@ -54,14 +67,22 @@ class Dataset:
                     raise ValueError(f"Duplicate prompt at {path}:{line_number}; resolve it before comparison")
                 html = extract_html(row)
                 self.rows[key, model] = {
-                    "html": html, "status": row.get("status", "unknown"),
+                    "html": html,
+                    "status": row.get("status", "unknown"),
                     "error": str(row.get("error") or ""),
                 }
                 digest.update(json.dumps([model, prompt, html], ensure_ascii=False).encode())
-                prompts.setdefault(key, {
-                    "key": key, "id": row.get("id"), "index": len(prompts),
-                    "prompt": prompt, "task": row.get("task", ""), "models": [],
-                })
+                prompts.setdefault(
+                    key,
+                    {
+                        "key": key,
+                        "id": row.get("id"),
+                        "index": len(prompts),
+                        "prompt": prompt,
+                        "task": row.get("task", ""),
+                        "models": [],
+                    },
+                )
                 if html:
                     prompts[key]["models"].append(model)
         self.prompts = list(prompts.values())
@@ -96,21 +117,32 @@ def handler_for(dataset, preview_port=None, games_only=False):
                 self.send(404, {"error": "Game not found"})
                 return
             if path == "/api/dataset":
-                self.send(200, {
-                    "reference_model": REFERENCE, "models": dataset.models,
-                    "dataset_id": dataset.fingerprint, "prompts": dataset.prompts,
-                    "preview_port": preview_port,
-                })
+                self.send(
+                    200,
+                    {
+                        "reference_model": REFERENCE,
+                        "models": dataset.models,
+                        "dataset_id": dataset.fingerprint,
+                        "prompts": dataset.prompts,
+                        "preview_port": preview_port,
+                    },
+                )
             elif path.startswith("/api/prompts/"):
                 key = path.removeprefix("/api/prompts/")
                 if key not in dataset.by_key:
                     self.send(404, {"error": "Prompt not found"})
                     return
-                self.send(200, {model: {
-                    "available": bool(dataset.rows.get((key, model), {}).get("html")),
-                    "status": dataset.rows.get((key, model), {}).get("status", "missing"),
-                    "error": dataset.rows.get((key, model), {}).get("error", ""),
-                } for model in dataset.models})
+                self.send(
+                    200,
+                    {
+                        model: {
+                            "available": bool(dataset.rows.get((key, model), {}).get("html")),
+                            "status": dataset.rows.get((key, model), {}).get("status", "missing"),
+                            "error": dataset.rows.get((key, model), {}).get("error", ""),
+                        }
+                        for model in dataset.models
+                    },
+                )
             elif path in {"/", "/index.html", "/app.js", "/styles.css"}:
                 file = ROOT / ("index.html" if path == "/" else path[1:])
                 self.send(200, file.read_bytes(), mimetypes.guess_type(file.name)[0] + "; charset=utf-8")
@@ -141,8 +173,10 @@ def main():
     parser.add_argument("--preview-port", type=int, help="Separate game origin; defaults to --port + 1")
     args = parser.parse_args()
     dataset = Dataset(ROOT)
-    preview = ThreadingHTTPServer((args.host, args.preview_port if args.preview_port is not None else args.port + 1),
-                                 handler_for(dataset, games_only=True))
+    preview = ThreadingHTTPServer(
+        (args.host, args.preview_port if args.preview_port is not None else args.port + 1),
+        handler_for(dataset, games_only=True),
+    )
     try:
         server = ThreadingHTTPServer((args.host, args.port), handler_for(dataset, preview.server_port))
     except OSError:

@@ -221,7 +221,7 @@ bash run_b200_resume.sh trainer.total_training_steps=40
 
 Set `RESUME_RESULTS_ROOT` when checkpoints are stored elsewhere.
 
-See the [training launcher](examples/grpo_trainer/run_agens_sim_reward_qwen3_6_35b_a3b.sh) for the full training configuration.
+See the [training launcher](examples/grpo_trainer/run_agens_sim_reward_qwen3_6_35b_a3b_megatron.sh) for the full training configuration.
 
 ## Training Logs
 

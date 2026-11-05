@@ -68,4 +68,4 @@ if [[ "${SKIP_GPU_CHECK:-0}" != "1" ]]; then
     "${python_bin}" -c 'import torch; count = torch.cuda.device_count(); assert count >= 8, f"Qwen3.6 launcher requires 8 visible GPUs, found {count}"'
 fi
 
-exec bash "${repo_root}/examples/grpo_trainer/run_agens_sim_reward_qwen3_6_35b_a3b.sh" "$@"
+exec bash "${repo_root}/examples/grpo_trainer/run_agens_sim_reward_qwen3_6_35b_a3b_megatron.sh" "$@"

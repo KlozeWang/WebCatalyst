@@ -151,9 +151,7 @@ def test_index_select_tensor_dict_preserves_3d_nested_tensor_layout_with_equal_s
 
 @pytest.mark.parametrize("batch_size", [1, 2])
 def test_maybe_fix_3d_position_ids_rebuilds_wrong_jagged_dimension(batch_size):
-    position_ids_list = [
-        (torch.arange(7) + sample_idx * 10).expand(4, 7).clone() for sample_idx in range(batch_size)
-    ]
+    position_ids_list = [(torch.arange(7) + sample_idx * 10).expand(4, 7).clone() for sample_idx in range(batch_size)]
     # Equal sequence lengths make PyTorch infer components, rather than
     # sequence length, as the jagged dimension.
     position_ids = torch.nested.as_nested_tensor(position_ids_list, layout=torch.jagged)

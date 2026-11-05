@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+# Copyright 2026 WebCatalyst Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Generate DesignV3 HTML samples for a base model and every checkpoint step."""
 
 from __future__ import annotations
@@ -15,7 +29,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -23,7 +36,6 @@ if str(REPO_ROOT) not in sys.path:
 from inference import infer_and_simulate as shared  # noqa: E402
 from scripts.html_game_dataset import HTML_GAME_SYSTEM_PROMPT  # noqa: E402
 from verl.utils.reward_score.agens_sim_reward import _extract_html  # noqa: E402
-
 
 DEFAULT_INPUT = Path("")
 DEFAULT_CHECKPOINT_ROOT = Path("/mnt/nfs/webcatalyst/checkpoints")
@@ -98,7 +110,7 @@ def load_rows(path: Path) -> list[InputRow]:
             if missing:
                 raise ValueError(f"JSONL line {line_number} is missing fields: {', '.join(missing)}")
             source_id = row["id"]
-            if isinstance(source_id, bool) or not isinstance(source_id, (str, int)):
+            if isinstance(source_id, bool) or not isinstance(source_id, str | int):
                 raise TypeError(f"JSONL line {line_number} id must be a string or integer")
             if isinstance(source_id, str) and not source_id:
                 raise ValueError(f"JSONL line {line_number} id cannot be empty")
@@ -281,11 +293,7 @@ def _generation_html(state_root: Path, row: InputRow) -> str | None:
 
 
 def _pending_samples(rows: list[InputRow], state_root: Path) -> list[shared.Sample]:
-    return [
-        row.sample
-        for row in rows
-        if _generation_html(state_root, row) is None
-    ]
+    return [row.sample for row in rows if _generation_html(state_root, row) is None]
 
 
 def _generate_pending(

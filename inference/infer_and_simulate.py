@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+# Copyright 2026 WebCatalyst Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Generate one HTML response per prompt and evaluate it with Agens."""
 
 from __future__ import annotations
@@ -20,14 +34,12 @@ import aiohttp
 import pandas as pd
 from tqdm import tqdm
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.html_game_dataset import HTML_GAME_SYSTEM_PROMPT  # noqa: E402
 from verl.utils.reward_score.agens_sim_reward import _extract_html, compute_score  # noqa: E402
-
 
 STATE_SCHEMA_VERSION = 1
 DEFAULT_MODEL_PATH = "Qwen/Qwen3.6-35B-A3B"
@@ -153,9 +165,9 @@ def _jsonable(value: Any) -> Any:
         value = value.tolist()
     if isinstance(value, dict):
         return {str(key): _jsonable(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return [_jsonable(item) for item in value]
-    if pd.isna(value) if not isinstance(value, (dict, list, tuple)) else False:
+    if pd.isna(value) if not isinstance(value, dict | list | tuple) else False:
         return None
     return value
 

@@ -982,7 +982,7 @@ def process_validation_metrics(
                 # Reward functions may attach optional metadata such as error
                 # messages, paths, or missing component scores. Only aggregate
                 # numeric values; NumPy cannot reduce values such as None.
-                if not var_vals or not all(isinstance(value, (Number, np.bool_)) for value in var_vals):
+                if not var_vals or not all(isinstance(value, Number | np.bool_) for value in var_vals):
                     continue
 
                 # compute mean and std
