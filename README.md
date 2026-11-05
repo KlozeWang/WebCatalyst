@@ -6,7 +6,7 @@
   <a href="https://arxiv.org/abs/2611.05151"><img src="https://img.shields.io/badge/arXiv-2611.05151-b31b1b" alt="arXiv paper"></a>
   <a href="#method"><img src="https://img.shields.io/badge/Method-WebCatalyst-blue" alt="Method"></a>
   <a href="#interactive-demo"><img src="https://img.shields.io/badge/Demo-Interactive%20Games-orange" alt="Interactive game demo"></a>
-  <a href="logs/WebCatalyst%20Training%20Logs.zip?raw=1"><img src="https://img.shields.io/badge/Training-Logs-yellow" alt="Download training logs"></a>
+  <a href="https://raw.githubusercontent.com/klozewang/webcatalyst/main/logs/WebCatalyst%20Training%20Logs.zip"><img src="https://img.shields.io/badge/Training-Logs-yellow" alt="Download training logs"></a>
   <a href="agens-cli/README.md"><img src="https://img.shields.io/badge/Tools-Agens-purple" alt="Agens CLI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green" alt="Apache 2.0 license"></a>
 </p>
@@ -225,7 +225,7 @@ See the [training launcher](examples/grpo_trainer/run_agens_sim_reward_qwen3_6_3
 
 ## Training Logs
 
-The [WebCatalyst W&B report](https://forge.coreweave.com/wandb/2546401325-nanyang-technological-university-singapore/webcatalyst_qwen36/reports/WebCatalyst-Training-Logs--VmlldzoxODE3ODUxOQ) contains the released training curves. The main logged signals cover GUI reward, transition and screenshot scores, Visual Anchor penalties, and ATC token coverage.
+[Download the WebCatalyst training logs](https://raw.githubusercontent.com/klozewang/webcatalyst/main/logs/WebCatalyst%20Training%20Logs.zip). The archive contains the released training curves for GUI reward, transition and screenshot scores, Visual Anchor penalties, and ATC token coverage.
 
 ## Interactive Demo
 
